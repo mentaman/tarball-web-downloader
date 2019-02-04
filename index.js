@@ -1,4 +1,5 @@
 const fs = require("fs");
+const path = require("path");
 const uuidv4 = require('uuid/v4');
 const express = require('express')
 const archiver = require('archiver');
@@ -63,7 +64,7 @@ app.get('/', async (req, res) => {
         console.log("send results");
         res.download(finalPath, folder+".zip");
     } else {
-        res.send("no package")
+        res.sendFile(path.join(__dirname+'/package.html'));
     }
     
 })
