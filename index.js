@@ -19,11 +19,14 @@ let download = async (packages, path) => {
             if(stderr) {
                 console.error(stderr);
                 results.failes.push(package);
+                
             }
             else if(!fs.existsSync(`${path}/${package.name}`)) {
                 results.failes.push(package);
+                console.error("not found" + package.name)
             }
         } catch(e) {
+            console.error("error downloading" + e)
             results.failes.push(package)
         }
         
