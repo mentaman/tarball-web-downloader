@@ -80,8 +80,9 @@ app.get('/', async (req, res) => {
             fs.mkdirSync(path, { recursive: true });
             fs.mkdirSync(finalPaths, { recursive: true });
             console.log("download!");
+            let packInput = formatInput(req.query.package);
             let results = await download(
-                formatInput(req.query.package), path);
+                packInput, path);
             if(results.failes.length > 0) {
                 console.log(JSON.stringify(results.failes));
                 res.send("Couldn't download packages: "+results.failes.map(package => `${package.name}${package.version ? "@"+package.version :""}`).join(","));
@@ -89,7 +90,8 @@ app.get('/', async (req, res) => {
                 console.log("zip!");
                 await zipDirectory(path, finalPath);
                 console.log("send results");
-                res.download(finalPath, folder+".zip", function(err) {
+                let date = new Date();
+                res.download(finalPath, `tarballs-${date.getDate()}_${date.getMonth()}_${date.getFullYear()}.zip`, function(err) {
                     fsex.removeSync(path);
                     fsex.removeSync(finalPath);
                 });
