@@ -13,7 +13,8 @@ let download = async (packages, path) => {
         try {
             let s = `node "${__dirname}/node_modules/node-tgz-downloader/bin/download-tgz" package ${package.name} --directory "${path}"`;
             let {stdout, stderr} = await exec(s, {
-                pwd: path
+                pwd: path, 
+                maxBuffer: 1024 * 1000 * 5
             });
             console.log(stdout);
             if(stderr) {
