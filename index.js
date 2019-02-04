@@ -44,7 +44,7 @@ function zipDirectory(source, out) {
   }
 
 const app = express()
-const port = 3000
+const port = process.env.PORT || 8080;
 
 app.get('/', async (req, res) => {
     if(req.query.package) {
