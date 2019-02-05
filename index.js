@@ -62,6 +62,7 @@ function zipDirectory(source, out) {
   }
 
 const app = express()
+app.setTimeout(60*1000*30);
 const port = process.env.PORT || 8080;
 
 function formatInput(input) {
