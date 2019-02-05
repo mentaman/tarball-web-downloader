@@ -62,7 +62,7 @@ function zipDirectory(source, out) {
   }
 
 const app = express()
-app.setTimeout(60*1000*30);
+
 const port = process.env.PORT || 8080;
 
 function formatInput(input) {
@@ -112,4 +112,5 @@ app.get('/', async (req, res) => {
     
 })
 
-app.listen(port, () => console.log(`Example app listening on port ${port}!`))
+const server = app.listen(port, () => console.log(`Example app listening on port ${port}!`))
+server.setTimeout(60*1000*30);
