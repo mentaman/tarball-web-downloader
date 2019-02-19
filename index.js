@@ -11,6 +11,11 @@ const app = express()
 const port = process.env.PORT || 8080;
 
 let queue = kue.createQueue({
+    redis: {
+        host: "redis-10334.c72.eu-west-1-2.ec2.cloud.redislabs.com",
+        port: 10334,
+        auth: 'CR8ojGUU5LKzWzHMRJJazhOqJlJuzBZ5'
+    }
 });
 
 function formatInput(input) {

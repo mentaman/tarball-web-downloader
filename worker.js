@@ -6,8 +6,12 @@ const util = require('util');
 const exec = util.promisify(require('child_process').exec);
 
 let queue = kue.createQueue({
+    redis: {
+        host: "redis-10334.c72.eu-west-1-2.ec2.cloud.redislabs.com",
+        port: 10334,
+        auth: 'CR8ojGUU5LKzWzHMRJJazhOqJlJuzBZ5'
+    }
 });
-
 queue.process('download', async (job, done) => {
     try { 
         let results = await download(job.data.packages, job.data.path);
