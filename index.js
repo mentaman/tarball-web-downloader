@@ -47,7 +47,7 @@ app.get('/', async (req, res, next) => {
                 .removeOnComplete(true)
                 .save((error) => {
                     if (error) {
-                      next(error);
+                        res.send("damnit: ", error);
                       return;
                     }
                     job.on('complete', result => {
