@@ -4,8 +4,10 @@ const express = require('express')
 const archiver = require('archiver');
 const util = require('util');
 const exec = util.promisify(require('child_process').exec);
+const path = require("path");
 
 let queue = kue.createQueue({
+    prefix: "server",
     redis: {
         host: "redis-10334.c72.eu-west-1-2.ec2.cloud.redislabs.com",
         port: 10334,
@@ -14,20 +16,23 @@ let queue = kue.createQueue({
 });
 queue.process('download', async (job, done) => {
     try { 
-        let results = await download(job.data.packages, job.data.path);
-
+        console.log("process job: ", JSON.stringify(job.data));
+        let results = await download(job.data.packInput, job.data.path);
+        let finalPath = job.data.finalPath;
         if(results.failes.length > 0) {
             console.log(JSON.stringify(results.failes));
             done(new Error("Couldn't download packages: "+results.failes.map(package => `${package.name}${package.version ? "@"+package.version :""}`).join(",")));
         } else {
-            console.log("zip!");
-            await zipDirectory(path, finalPath);
+            console.log("zip!", {path: job.data.path, finalPath});
+            await zipDirectory(job.data.path, finalPath);
             console.log("send results");
             let date = new Date();
             let tarName = `tarballs-${date.getDate()}_${date.getMonth()}_${date.getFullYear()}.zip`;
+            console.log("done send results");
             done(null, {finalPath, tarName})
         }
     } catch(e) {
+        console.log(`Something bad happend: ${JSON.stringify(e)} ${e.message}`)
         done(new Error(`Something bad happend: ${JSON.stringify(e)} ${e.message}`));
     }
   });

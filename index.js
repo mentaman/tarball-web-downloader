@@ -11,6 +11,7 @@ const app = express()
 const port = process.env.PORT || 8080;
 
 let queue = kue.createQueue({
+    prefix: "server",
     redis: {
         host: "redis-10334.c72.eu-west-1-2.ec2.cloud.redislabs.com",
         port: 10334,
@@ -31,34 +32,66 @@ function formatInput(input) {
 
 
 app.get('/', async (req, res, next) => {
-    if(req.query.package) {
+    if(req.query.package || req.query.id) {
         try {
+            if(req.query.id) {
+                console.log("search job!");
+                kue.Job.get( req.query.id, function( err, job ) {
+                    // change job properties
+                    if(err) {
+                        res.send("error getting your job."+err);
+                    } else {
+                        console.log("got job", `data: ${JSON.stringify(job.data)} error: ${JSON.stringify(job._error)}`);
+                        if(job._error) {
+                            res.send({error: job._error});
+                            job.remove();
+                        } else if(!job.result) {
+                            res.send({ready: false, id: job.id});
+                        } else {
+                            console.log("awesome!", job.result);
+                            if(req.query.download) {
+                                let {finalPath, tarName} = job.result;
+                                res.download(finalPath, tarName, function(err) {
+                                    fsex.removeSync(job.data.path);
+                                    fsex.removeSync(finalPath);
+                                    job.remove();
+                                });
+                            } else {
+                                res.send({ready: true, id: job.id})
+                            }
+                        }
+                    }
+                  });
+                  return;
+            }
             let folder = uuidv4();
             let path =  __dirname+"/tarballs/"+folder;
             let finalPaths = __dirname+"/finals";
             let finalPath = finalPaths+"/"+folder+".zip";
             fs.mkdirSync(path, { recursive: true });
             fs.mkdirSync(finalPaths, { recursive: true });
-            console.log("download!");
+            console.log("create job!");
             let packInput = formatInput(req.query.package);
-
-            const downloadJob = queue.create('download', {packInput, path});
+            const downloadJob = queue.create('download', {packInput, path, finalPath});
             downloadJob
-                .removeOnComplete(true)
+                .ttl(30 * 60 * 1000)
                 .save((error) => {
+                    console.log("save job");
                     if (error) {
+                        console.log("save error"+JSON.stringify(error));
                         res.send("damnit, save error. "+JSON.stringify(error));
                       return;
                     }
                     downloadJob.on('complete', result => {
-                        let {finalPath, tarName} = result;
-                        res.download(finalPath, tarName, function(err) {
-                            fsex.removeSync(path);
-                            fsex.removeSync(finalPath);
-                        });
+                        console.log("completed job");
                     });
                     downloadJob.on('failed', (error) => {
-                      res.send("damnit: "+JSON.stringify(error));
+                        console.log("job failed"+JSON.stringify(error));
+                        //res.send("damnit: "+JSON.stringify(error));
+                    });
+                    downloadJob.on('start', () => {
+                        console.log("start");
+                        res.send({id: downloadJob.id});
                     });
                   });
         } catch(e) {
