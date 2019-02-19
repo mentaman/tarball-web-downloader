@@ -4,7 +4,7 @@ const path = require("path");
 const uuidv4 = require('uuid/v4');
 const express = require('express')
 const archiver = require('archiver');
-import kue from 'kue';
+const kue = require("kue");
 
 const app = express()
 

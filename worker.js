@@ -1,4 +1,4 @@
-import kue from 'kue';
+const kue = require("kue");
 const fs = require("fs");
 const express = require('express')
 const archiver = require('archiver');
