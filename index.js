@@ -50,14 +50,14 @@ app.get('/', async (req, res, next) => {
                         res.send("damnit: ", error);
                       return;
                     }
-                    job.on('complete', result => {
+                    downloadJob.on('complete', result => {
                         let {finalPath, tarName} = result;
                         res.download(finalPath, tarName, function(err) {
                             fsex.removeSync(path);
                             fsex.removeSync(finalPath);
                         });
                     });
-                    job.on('failed', (error) => {
+                    downloadJob.on('failed', (error) => {
                       res.send("damnit: ", error);
                     });
                   });
