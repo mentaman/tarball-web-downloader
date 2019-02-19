@@ -4,65 +4,13 @@ const path = require("path");
 const uuidv4 = require('uuid/v4');
 const express = require('express')
 const archiver = require('archiver');
-const util = require('util');
-const exec = util.promisify(require('child_process').exec);
-
-let download = async (packages, path) => {
-    let results = {failes: []};
-    for(let package of packages) {
-        try {
-            let s = `node "${__dirname}/node_modules/node-tgz-downloader/bin/download-tgz" package ${package.name} --directory "${path}"`;
-            let {stdout, stderr} = await exec(s, {
-                pwd: path, 
-                maxBuffer: 1024 * 1000 * 5
-            });
-            console.log(stdout);
-            if(stderr) {
-                console.error(stderr);
-                results.failes.push(package);
-                
-            }
-            else if(!fs.existsSync(`${path}/${package.name}`)) {
-                results.failes.push(package);
-                console.error("not found" + package.name)
-            }
-        } catch(e) {
-            console.error("error downloading" + e)
-            results.failes.push(package)
-        }
-        
-    }
-    return results;
-};
-
-async function main() {
-    let folder = uuidv4();
-    let path =  __dirname+"/tarballs/"+folder;
-    let finalPath = __dirname+"/finals";
-    fs.mkdirSync(path, { recursive: true });
-    fs.mkdirSync(finalPath, { recursive: true });
-    await download("smallest", undefined, path);
-    await zipDirectory(path, finalPath+"/"+folder+".zip");
-;}
-
-function zipDirectory(source, out) {
-    const archive = archiver('zip', { zlib: { level: 9 }});
-    const stream = fs.createWriteStream(out);
-  
-    return new Promise((resolve, reject) => {
-      archive
-        .directory(source, false)
-        .on('error', err => reject(err))
-        .pipe(stream)
-      ;
-  
-      stream.on('close', () => resolve());
-      archive.finalize();
-    });
-  }
+import kue from 'kue';
 
 const app = express()
 const port = process.env.PORT || 8080;
+
+let queue = kue.createQueue({
+});
 
 function formatInput(input) {
     return input.split(",").map((pack) => {
@@ -74,7 +22,9 @@ function formatInput(input) {
     })
 }
 
-app.get('/', async (req, res) => {
+
+
+app.get('/', async (req, res, next) => {
     if(req.query.package) {
         try {
             let folder = uuidv4();
@@ -85,22 +35,26 @@ app.get('/', async (req, res) => {
             fs.mkdirSync(finalPaths, { recursive: true });
             console.log("download!");
             let packInput = formatInput(req.query.package);
-            let results = await download(
-                packInput, path);
-            if(results.failes.length > 0) {
-                console.log(JSON.stringify(results.failes));
-                res.send("Couldn't download packages: "+results.failes.map(package => `${package.name}${package.version ? "@"+package.version :""}`).join(","));
-            } else {
-                console.log("zip!");
-                await zipDirectory(path, finalPath);
-                console.log("send results");
-                let date = new Date();
-                res.download(finalPath, `tarballs-${date.getDate()}_${date.getMonth()}_${date.getFullYear()}.zip`, function(err) {
-                    fsex.removeSync(path);
-                    fsex.removeSync(finalPath);
-                });
-               
-            }
+
+            const downloadJob = queue.create('download', {packInput, path});
+            downloadJob
+                .removeOnComplete(true)
+                .save((error) => {
+                    if (error) {
+                      next(error);
+                      return;
+                    }
+                    job.on('complete', result => {
+                        let {finalPath, tarName} = result;
+                        res.download(finalPath, tarName, function(err) {
+                            fsex.removeSync(path);
+                            fsex.removeSync(finalPath);
+                        });
+                    });
+                    job.on('failed', (error) => {
+                      res.send("damnit: ", error);
+                    });
+                  });
         } catch(e) {
             res.send("Couldn't download files");
             console.error(e);
