@@ -47,7 +47,7 @@ app.get('/', async (req, res, next) => {
                 .removeOnComplete(true)
                 .save((error) => {
                     if (error) {
-                        res.send("damnit: "+error.message);
+                        res.send("damnit, save error. "+JSON.stringify(error));
                       return;
                     }
                     downloadJob.on('complete', result => {
@@ -58,7 +58,7 @@ app.get('/', async (req, res, next) => {
                         });
                     });
                     downloadJob.on('failed', (error) => {
-                      res.send("damnit: "+error.message);
+                      res.send("damnit: "+JSON.stringify(error));
                     });
                   });
         } catch(e) {
