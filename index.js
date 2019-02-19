@@ -7,6 +7,7 @@ const archiver = require('archiver');
 import kue from 'kue';
 
 const app = express()
+
 const port = process.env.PORT || 8080;
 
 let queue = kue.createQueue({
@@ -65,4 +66,5 @@ app.get('/', async (req, res, next) => {
     
 })
 
-app.listen(port, () => console.log(`Example app listening on port ${port}!`))
+const server = app.listen(port, () => console.log(`Example app listening on port ${port}!`))
+server.setTimeout(60*1000*30);
