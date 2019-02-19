@@ -28,7 +28,7 @@ queue.process('download', async (job, done) => {
             done(null, {finalPath, tarName})
         }
     } catch(e) {
-        done(new Error("Something bad happend"));
+        done(new Error(`Something bad happend: ${JSON.stringify(e)} ${e.message}`));
     }
   });
 
