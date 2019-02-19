@@ -21,7 +21,7 @@ queue.process('download', async (job, done) => {
         let finalPath = job.data.finalPath;
         if(results.failes.length > 0) {
             console.log(JSON.stringify(results.failes));
-            done(new Error("Couldn't download packages: "+results.failes.map(package => `${package.name}${package.version ? "@"+package.version :""}`).join(",")));
+            done(new Error("Couldn't download packages: "+results.failes.map(fail => `${fail.package.name}${fail.package.version ? "@"+fail.package.version :""} because ${fail.reason}... | `).join(",")));
         } else {
             console.log("zip!", {path: job.data.path, finalPath});
             await zipDirectory(job.data.path, finalPath);
@@ -67,11 +67,11 @@ let download = async (packages, path) => {
             console.log(stdout);
             if(stderr) {
                 console.error(stderr);
-                results.failes.push(package);
+                results.failes.push({package, reason: stdout+" & "+stderr});
                 
             }
             else if(!fs.existsSync(`${path}/${package.name}`)) {
-                results.failes.push(package);
+                results.failes.push({package, reason: "didn't download"});
                 console.error("not found" + package.name)
             }
         } catch(e) {
