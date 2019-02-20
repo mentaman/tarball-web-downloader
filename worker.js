@@ -70,6 +70,10 @@ let download = async (packages, path) => {
                 results.failes.push({package, reason: stdout+" & "+stderr});
                 
             }
+            else if(!fs.existsSync(`${path}`)) {
+                results.failes.push({package, reason: "נעלם"});
+                console.error("not found" + package.name)
+            }
             else if(!fs.existsSync(`${path}/${package.name}`)) {
                 results.failes.push({package, reason: "didn't download. ---"+s+'---'});
                 console.error("not found" + package.name)
