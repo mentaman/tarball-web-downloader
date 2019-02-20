@@ -17,8 +17,10 @@ let queue = kue.createQueue({
 queue.process('download', async (job, done) => {
     try { 
         console.log("process job: ", JSON.stringify(job.data));
-        let results = await download(job.data.packInput, job.data.path);
         let finalPath = job.data.finalPath;
+        fs.mkdirSync(finalPath, { recursive: true });
+        fs.mkdirSync(job.data.path, { recursive: true });
+        let results = await download(job.data.packInput, job.data.path);
         if(results.failes.length > 0) {
             console.log(JSON.stringify(results.failes));
             done(new Error("Couldn't download packages: "+results.failes.map(fail => `${fail.package.name}${fail.package.version ? "@"+fail.package.version :""} because ${fail.reason}... | `).join(",")));
@@ -60,6 +62,7 @@ let download = async (packages, path) => {
     for(let package of packages) {
         try {
             let downloaderPath = `${__dirname}/node_modules/node-tgz-downloader/bin/download-tgz`;
+            
             if(!fs.existsSync(`${downloaderPath}`)) {
                 results.failes.push({package, reason: "no downloader"});
                 return results;
