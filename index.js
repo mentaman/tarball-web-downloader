@@ -84,9 +84,15 @@ app.get('/', async (req, res, next) => {
             const downloadJob = queue.create('download', {packInput, path: tarballsPath, finalPath});
             downloadJob
                 .ttl(30 * 60 * 1000)
-                .save((error) => {});
-                
-            res.send({id: downloadJob.id});
+                .save((error) => {
+                    console.log("save job");
+                    if (error) {
+                        console.log("save error"+JSON.stringify(error));
+                        res.send({error: "save error"+JSON.stringify(error)});
+                      return;
+                    }
+                    res.send({id: downloadJob.id});
+                  });
         } catch(e) {
             res.send("Couldn't download files");
             console.error(e);
