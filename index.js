@@ -68,8 +68,9 @@ app.get('/', async (req, res, next) => {
             let finalPaths = path.resolve(__dirname+"/finals");
             let finalPath = finalPaths+"/"+folder+".zip";
             fs.mkdirSync(tarballsPath, { recursive: true });
+            fs.writeFile(tarballsPath+"/readme.txt", "cool", {encoding: "utf-8"});
             fs.mkdirSync(finalPaths, { recursive: true });
-            
+            fs.writeFile(finalPaths+"/readme.txt", "great", {encoding: "utf-8"});
             if(!fs.existsSync(`${tarballsPath}`)) {
                 res.send({error: "can't create temp folder.."})
                 return;
