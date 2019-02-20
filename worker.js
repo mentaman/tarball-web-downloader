@@ -18,7 +18,7 @@ queue.process('download', async (job, done) => {
     try { 
         console.log("process job: ", JSON.stringify(job.data));
         let finalPath = job.data.finalPath;
-        fs.mkdirSync(finalPath, { recursive: true });
+        fs.mkdirSync(path.dirname(finalPath), { recursive: true });
         fs.mkdirSync(job.data.path, { recursive: true });
         let results = await download(job.data.packInput, job.data.path);
         if(results.failes.length > 0) {
