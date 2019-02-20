@@ -71,7 +71,7 @@ let download = async (packages, path) => {
                 
             }
             else if(!fs.existsSync(`${path}/${package.name}`)) {
-                results.failes.push({package, reason: "didn't download"});
+                results.failes.push({package, reason: "didn't download. ---"+s+'---'});
                 console.error("not found" + package.name)
             }
         } catch(e) {
