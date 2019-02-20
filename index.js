@@ -98,7 +98,7 @@ app.get('/', async (req, res, next) => {
                     });
                     downloadJob.on('start', () => {
                         console.log("start");
-                        res.send({id: downloadJob.id, exists: });
+                        res.send({id: downloadJob.id});
                     });
                   });
         } catch(e) {
