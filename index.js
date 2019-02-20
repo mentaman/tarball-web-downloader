@@ -66,6 +66,14 @@ app.get('/', async (req, res, next) => {
             let folder = uuidv4();
             let path =  require('os').tmpdir()+"/tarballs/"+folder;
             let finalPaths = require('os').tmpdir()+"/finals";
+            if(!fs.existsSync(`${path}`)) {
+                res.send({error: "can't create temp folder.."})
+                return;
+            }
+            if(!fs.existsSync(`${finalPaths}`)) {
+                res.send({error: "can't create results folder.."})
+                return;
+            }
             let finalPath = finalPaths+"/"+folder+".zip";
             fs.mkdirSync(path, { recursive: true });
             fs.mkdirSync(finalPaths, { recursive: true });
@@ -78,7 +86,7 @@ app.get('/', async (req, res, next) => {
                     console.log("save job");
                     if (error) {
                         console.log("save error"+JSON.stringify(error));
-                        res.send("damnit, save error. "+JSON.stringify(error));
+                        res.send({error: "save error"+JSON.stringify(error)});
                       return;
                     }
                     downloadJob.on('complete', result => {
@@ -90,7 +98,7 @@ app.get('/', async (req, res, next) => {
                     });
                     downloadJob.on('start', () => {
                         console.log("start");
-                        res.send({id: downloadJob.id});
+                        res.send({id: downloadJob.id, exists: });
                     });
                   });
         } catch(e) {

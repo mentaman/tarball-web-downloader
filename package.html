@@ -80,6 +80,8 @@
                         if(response.id) {
                             $("#status").text("חכה..");
                             jobRequest(response.id, 0);
+                        } else if(response.error ) { 
+                            $("#status").text("לא הצליח להתחיל התקנה:"+response.error);
                         } else {
                             $("#status").text("חזרה תשובה לא טובה");
                         }
