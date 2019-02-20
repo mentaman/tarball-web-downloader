@@ -3,7 +3,6 @@ const fsex = require("fs-extra");
 const path = require("path");
 const uuidv4 = require('uuid/v4');
 const express = require('express')
-const archiver = require('archiver');
 const kue = require("kue");
 
 const app = express()
@@ -65,8 +64,8 @@ app.get('/', async (req, res, next) => {
                   return;
             }
             let folder = uuidv4();
-            let path =  __dirname+"/tarballs/"+folder;
-            let finalPaths = __dirname+"/finals";
+            let path =  require('os').tmpdir()+"/tarballs/"+folder;
+            let finalPaths = require('os').tmpdir()+"/finals";
             let finalPath = finalPaths+"/"+folder+".zip";
             fs.mkdirSync(path, { recursive: true });
             fs.mkdirSync(finalPaths, { recursive: true });
