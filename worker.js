@@ -59,7 +59,16 @@ let download = async (packages, path) => {
     let results = {failes: []};
     for(let package of packages) {
         try {
-            let s = `node "${__dirname}/node_modules/node-tgz-downloader/bin/download-tgz" package ${package.name} --directory "${path}"`;
+            let downloaderPath = `${__dirname}/node_modules/node-tgz-downloader/bin/download-tgz`;
+            if(!fs.existsSync(`${downloaderPath}`)) {
+                results.failes.push({package, reason: "no downloader"});
+                return results;
+            }
+            if(!fs.existsSync(`${path}`)) {
+                results.failes.push({package, reason: "trying to download to a non existing place"});
+                return results;
+            }
+            let s = `node "${downloaderPath}" package ${package.name} --directory "${path}"`;
             let {stdout, stderr} = await exec(s, {
                 pwd: path, 
                 maxBuffer: 1024 * 1000 * 5
@@ -71,7 +80,7 @@ let download = async (packages, path) => {
                 
             }
             else if(!fs.existsSync(`${path}`)) {
-                results.failes.push({package, reason: "נעלם"});
+                results.failes.push({package, reason: "disappeared"});
                 console.error("not found" + package.name)
             }
             else if(!fs.existsSync(`${path}/${package.name}`)) {
