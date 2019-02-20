@@ -64,13 +64,13 @@ app.get('/', async (req, res, next) => {
                   return;
             }
             let folder = uuidv4();
-            let path =  __dirname+"/tarballs/"+folder;
-            let finalPaths = __dirname+"/finals";
+            let tarballsPath =  path.resolve(__dirname+"/tarballs/"+folder);
+            let finalPaths = path.resolve(__dirname+"/finals");
             let finalPath = finalPaths+"/"+folder+".zip";
-            fs.mkdirSync(path, { recursive: true });
+            fs.mkdirSync(tarballsPath, { recursive: true });
             fs.mkdirSync(finalPaths, { recursive: true });
             
-            if(!fs.existsSync(`${path}`)) {
+            if(!fs.existsSync(`${tarballsPath}`)) {
                 res.send({error: "can't create temp folder.."})
                 return;
             }
@@ -80,7 +80,7 @@ app.get('/', async (req, res, next) => {
             }
             console.log("create job!");
             let packInput = formatInput(req.query.package);
-            const downloadJob = queue.create('download', {packInput, path, finalPath});
+            const downloadJob = queue.create('download', {packInput, path: tarballsPath, finalPath});
             downloadJob
                 .ttl(30 * 60 * 1000)
                 .save((error) => {
