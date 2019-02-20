@@ -65,7 +65,7 @@ let download = async (packages, path) => {
                 return results;
             }
             if(!fs.existsSync(`${path}`)) {
-                results.failes.push({package, reason: "trying to download to a non existing place"});
+                results.failes.push({package, reason: `trying to download to a non existing place: (${path})`});
                 return results;
             }
             let s = `node "${downloaderPath}" package ${package.name} --directory "${path}"`;
