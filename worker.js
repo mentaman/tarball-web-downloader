@@ -76,7 +76,7 @@ let download = async (packages, path) => {
             }
         } catch(e) {
             console.error("error downloading" + e)
-            results.failes.push(package)
+            results.failes.push({package, reason: "error"+e})
         }
         
     }
