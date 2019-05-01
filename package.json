@@ -4,9 +4,8 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "start": "node index.js",
-    "worker": "node worker.js",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "start-dev": "ts-node index.ts",
+    "start": "tsc && node ./build/index.js"
   },
   "author": "",
   "license": "ISC",
@@ -16,6 +15,10 @@
     "fs-extra": "^7.0.1",
     "kue": "^0.11.6",
     "node-tgz-downloader": "^3.11.0",
+    "typescript": "^3.4.5",
     "uuid": "^3.3.2"
+  },
+  "devDependencies": {
+    "ts-node": "^8.1.0"
   }
 }
