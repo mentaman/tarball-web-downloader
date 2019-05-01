@@ -1,0 +1,14 @@
+{
+    "compilerOptions": {
+      "target": "es6",
+      "module": "commonjs",
+      "experimentalDecorators": true,
+      "esModuleInterop": true,
+      "outDir": "build",
+      "allowSyntheticDefaultImports": true
+    },
+    "exclude": [
+      "node_modules"
+    ]
+  }
+  
