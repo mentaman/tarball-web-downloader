@@ -23,8 +23,10 @@ function formatInput(input) {
     })
 }
 
-
-
+let countDownloads = 0;
+app.get('/downloads', (req, res) => {
+    res.send({downloads: countDownloads});
+});
 app.get('/', async (req, res, next) => {
     if(req.query.package || req.query.id) {
         try {
@@ -55,6 +57,7 @@ app.get('/', async (req, res, next) => {
                         else
                         {
                             res.send({ready: true, id: work.workId});
+                            countDownloads++;
                             return;
                         }
                     }

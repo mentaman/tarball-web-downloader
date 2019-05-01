@@ -29,6 +29,16 @@
     </head>
     <body>
         <form id="myForm">
+            <div style="border: 1px solid black">
+                <br/>
+                חבר'ה עדכון חם חם! (כמו שהצעירים אומרים).<br/>
+                נכון תמיד רציתם להוריד ספריה שמנה שלוקחת יותר מ30 שניות <br/>
+                מבלי שהאתר יקריס???? <br/>
+                אז נחשו מה!!! עכשיו אתם יכולים<br/>
+                <br/>
+            </div>
+            <br/>
+            <br/>
             <div class="unisex">ההוראות כתובות בלשון זכר, אבל גם נקבות מוזמנות להשתמש</div>
             <br/>
             <br/>
@@ -36,8 +46,27 @@
             <input id="package" type="text" name="package" />
             <input id="submit" type="submit" value="תביא">
             <div id="status" style="display: none;">טוען</div>
+            <br/>
+            <br/>
+            <div>
+                <span>האתר עבר כבר</span>
+                <span id="downloads-num"></span>
+                <span>הורדות מבלי ריסוט!</span> 
+                <br/>
+                <span>(מצטער, זה כל מה שאפשר לספור עם ראם)</span>
+            </div>
         </form>
         <script>
+            function updateDownloads() {
+                $.ajax({
+                    type: "GET",
+                    url: "/downloads",
+                    success: function(res) {
+                        $("#downloads-num").text(res.downloads);
+                    }
+                });
+            }
+            updateDownloads();
             function jobRequest(id, num){
                 $.ajax({
                 type: 'GET',
@@ -51,6 +80,7 @@
                     else if(response.ready) {
                         $("#status").text("סיים");
                         window.location.search = "download=true&id="+id;
+                        updateDownloads();
                     }
                     else {
                         $("#status").text("מוריד.."+num);
