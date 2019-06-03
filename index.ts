@@ -11,16 +11,38 @@ const app = express()
 const util = require('util');
 const exec = util.promisify(require('child_process').exec);
 
-const port = process.env.PORT || 8080;
+const port = process.env.PORT || 8118;
 
 function formatInput(input) {
     return input.split(",").map((pack) => {
-        let packsplit = pack.split("@");
+        let packsplit = parseVersion(pack);
         return ({
-            name: packsplit[0], 
-            version: packsplit.length > 1 ? packsplit[1] : undefined
+            name: packsplit.name, 
+            version: packsplit.version
         })
     })
+}
+
+const RE_SCOPED = /^(@[^/]+\/[^/@]+)(?:\/([^@]+))?(?:@([\s\S]+))?/
+const RE_NORMAL = /^([^/@]+)(?:\/([^@]+))?(?:@([\s\S]+))?/
+
+export function parseVersion(input: string): {name: string;path: string;version: string;} 
+  {
+  if (typeof input !== 'string') {
+    throw new TypeError('Expected a string')
+  }
+
+  const matched = input.charAt(0) === '@' ? input.match(RE_SCOPED) : input.match(RE_NORMAL)
+
+  if (!matched) {
+    throw new Error(`[parse-package-name] "${input}" is not a valid string`)
+  }
+
+  return {
+    name: matched[1],
+    path: matched[2] || undefined,
+    version: matched[3] || undefined
+  }
 }
 
 let countDownloads = 0;
